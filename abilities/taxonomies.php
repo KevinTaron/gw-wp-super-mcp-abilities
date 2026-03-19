@@ -17,8 +17,8 @@ function gw_mcp_register_tax_abilities() {
             'gw/read-taxonomies',
             array(
                 'category'    => 'gw',
-                'label'       => 'Get Taxonomies',
-                'description' => 'Returns all taxonomies (e.g. category, post_tag) registered for a specific post type or globally.',
+                'label'       => 'Get Taxonomies (Categories, Tags, Custom)',
+                'description' => 'Returns all taxonomy types registered for a post type or globally. (Note: In WordPress, "Categories" and "Tags" are just built-in taxonomies).',
                 'input_schema' => array(
                     'type'       => 'object',
                     'properties' => array(
@@ -35,14 +35,14 @@ function gw_mcp_register_tax_abilities() {
         );
     }
 
-    // 2. Read Terms
+    // 2. Read Terms (Categories/Tags)
     if ( gw_mcp_is_ability_active( 'read_terms' ) && function_exists( 'wp_register_ability' ) ) {
         wp_register_ability(
             'gw/read-terms',
             array(
                 'category'    => 'gw',
-                'label'       => 'Get Terms',
-                'description' => 'Returns list of terms (like specific categories or tags) within a requested taxonomy.',
+                'label'       => 'Get Terms (Categories, Tags)',
+                'description' => 'Returns list of actual terms (like your specific Categories, Tags, or custom taxonomy items) within a requested taxonomy.',
                 'input_schema' => array(
                     'type'       => 'object',
                     'properties' => array(
@@ -66,14 +66,14 @@ function gw_mcp_register_tax_abilities() {
         );
     }
 
-    // 3. Create Term
+    // 3. Create Term (Category/Tag)
     if ( gw_mcp_is_ability_active( 'write_terms' ) && function_exists( 'wp_register_ability' ) ) {
         wp_register_ability(
             'gw/create-term',
             array(
                 'category'    => 'gw',
-                'label'       => 'Create Taxonomy Term',
-                'description' => 'Creates a new term (like a category or tag) in a specific taxonomy.',
+                'label'       => 'Create Category / Tag / Term',
+                'description' => 'Creates a new term (like a new Category or Tag) in a specific taxonomy.',
                 'input_schema' => array(
                     'type'       => 'object',
                     'properties' => array(
@@ -83,7 +83,7 @@ function gw_mcp_register_tax_abilities() {
                         ),
                         'term_name' => array(
                             'type'        => 'string',
-                            'description' => 'The name of the new term.',
+                            'description' => 'The name of the new term (e.g. "News" or "Updates").',
                         ),
                         'description' => array(
                             'type'        => 'string',
@@ -103,14 +103,14 @@ function gw_mcp_register_tax_abilities() {
         );
     }
 
-    // 4. Update Term
+    // 4. Update Term (Category/Tag)
     if ( gw_mcp_is_ability_active( 'write_terms' ) && function_exists( 'wp_register_ability' ) ) {
         wp_register_ability(
             'gw/update-term',
             array(
                 'category'    => 'gw',
-                'label'       => 'Update Taxonomy Term',
-                'description' => 'Updates an existing term.',
+                'label'       => 'Update Category / Tag / Term',
+                'description' => 'Updates an existing term (e.g. renaming a Category).',
                 'input_schema' => array(
                     'type'       => 'object',
                     'properties' => array(
@@ -140,13 +140,13 @@ function gw_mcp_register_tax_abilities() {
         );
     }
 
-    // 5. Delete Term
+    // 5. Delete Term (Category/Tag)
     if ( gw_mcp_is_ability_active( 'write_terms' ) && function_exists( 'wp_register_ability' ) ) {
         wp_register_ability(
             'gw/delete-term',
             array(
                 'category'    => 'gw',
-                'label'       => 'Delete Taxonomy Term',
+                'label'       => 'Delete Category / Tag / Term',
                 'description' => 'Deletes an existing term permanently.',
                 'input_schema' => array(
                     'type'       => 'object',
@@ -168,8 +168,46 @@ function gw_mcp_register_tax_abilities() {
             )
         );
     }
-}
 
+    // 6. Assign Terms to Post
+    if ( gw_mcp_is_ability_active( 'write_terms' ) && function_exists( 'wp_register_ability' ) ) {
+        wp_register_ability(
+            'gw/assign-terms',
+            array(
+                'category'    => 'gw',
+                'label'       => 'Assign Terms (Categories/Tags) to Post',
+                'description' => 'Assigns categories, tags, or custom terms to a specific post.',
+                'input_schema' => array(
+                    'type'       => 'object',
+                    'properties' => array(
+                        'post_id' => array(
+                            'type'        => 'integer',
+                            'description' => 'The ID of the post.',
+                        ),
+                        'taxonomy' => array(
+                            'type'        => 'string',
+                            'description' => 'The taxonomy to set terms for (e.g. category, post_tag).',
+                        ),
+                        'terms' => array(
+                            'type'        => 'array',
+                            'items'       => [ 'type' => 'integer' ],
+                            'description' => 'Array of Term IDs to assign. Example: [12, 14]',
+                        ),
+                        'append' => array(
+                            'type'        => 'boolean',
+                            'description' => 'If true, appends terms instead of replacing existing ones. Default false.',
+                            'default'     => false
+                        ),
+                    ),
+                    'required' => [ 'post_id', 'taxonomy', 'terms' ]
+                ),
+                'permission_callback' => '__return_true',
+                'execute_callback'    => 'gw_assign_terms_execute',
+                'meta' => array( 'mcp' => array( 'public' => true ) ),
+            )
+        );
+    }
+}
 function gw_read_taxonomies_execute( $input ) {
     $args = array(
         'public' => true,
@@ -303,5 +341,38 @@ function gw_delete_term_execute( $input ) {
         'term_id'  => $term_id,
         'taxonomy' => $taxonomy,
         'message'  => 'Term deleted successfully.'
+    );
+}
+
+function gw_assign_terms_execute( $input ) {
+    $post_id  = intval( $input['post_id'] );
+    $taxonomy = sanitize_key( $input['taxonomy'] );
+    $append   = isset( $input['append'] ) ? (bool) $input['append'] : false;
+
+    // Validate post exists
+    if ( ! get_post( $post_id ) ) {
+        return new WP_Error( 'not_found', 'Content not found.' );
+    }
+
+    if ( ! taxonomy_exists( $taxonomy ) ) {
+        return new WP_Error( 'invalid_taxonomy', 'The requested taxonomy does not exist.' );
+    }
+
+    $terms = array();
+    if ( isset( $input['terms'] ) && is_array( $input['terms'] ) ) {
+        $terms = array_map( 'intval', $input['terms'] );
+    }
+
+    $result = wp_set_object_terms( $post_id, $terms, $taxonomy, $append );
+
+    if ( is_wp_error( $result ) ) {
+        return $result;
+    }
+
+    return array(
+        'post_id'  => $post_id,
+        'taxonomy' => $taxonomy,
+        'assigned' => $result,
+        'message'  => 'Terms assigned successfully.'
     );
 }

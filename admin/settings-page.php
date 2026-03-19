@@ -226,8 +226,9 @@ function gw_mcp_render_settings_page() {
             'fields'=> [
                 'read_metadata'   => [ 'label' => 'Metadaten lesen', 'desc' => 'gw/read-metadata - Direkter Zugriff auf WordPress Custom Fields.' ],
                 'write_metadata'  => [ 'label' => 'Metadaten schreiben', 'desc' => 'gw/write-metadata - Erstellt, ändert oder löscht Custom Fields.' ],
-                'read_taxonomies' => [ 'label' => 'Taxonomien auslesen', 'desc' => 'gw/read-taxonomies - Prüft welche Kategorien, Tags etc. es gibt.' ],
-                'read_terms'      => [ 'label' => 'Begriffe lesen', 'desc' => 'gw/read-terms - Listet Kategorien-Namen und IDs auf (wichtig für Posts generieren).' ],
+                'read_taxonomies' => [ 'label' => 'Taxonomien auslesen', 'desc' => 'gw/read-taxonomies - Prüft welche Taxonomien es gibt (inkl. Categories/Tags).' ],
+                'read_terms'      => [ 'label' => 'Begriffe lesen', 'desc' => 'gw/read-terms - Listet Kategorien, Tags und IDs auf.' ],
+                'write_terms'     => [ 'label' => 'Taxonomien bearbeiten', 'desc' => 'Erstellt, ändert, löscht und weist Kategorien und Tags zu (assign-terms).' ],
             ]
         ],
         'seo' => [
