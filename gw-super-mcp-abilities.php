@@ -3,7 +3,7 @@
  * Plugin Name:       Gutwerker MCP Abilities
  * Plugin URI:        https://github.com/gutwerker/gw-super-mcp-abilities
  * Description:       Exposes WordPress content (posts, pages, CPTs, media, metadata & taxonomies) to AI assistants via the Model Context Protocol (MCP).
- * Version:           1.3.1
+ * Version:           1.4.0
  * Requires at least: 6.8
  * Requires PHP:      7.4
  * Requires Plugins:  mcp-adapter, abilities-api
