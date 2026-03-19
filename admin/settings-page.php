@@ -225,8 +225,17 @@ function gw_mcp_render_settings_page() {
             'title' => 'Metadaten & Taxonomien',
             'fields'=> [
                 'read_metadata'   => [ 'label' => 'Metadaten lesen', 'desc' => 'gw/read-metadata - Direkter Zugriff auf WordPress Custom Fields.' ],
+                'write_metadata'  => [ 'label' => 'Metadaten schreiben', 'desc' => 'gw/write-metadata - Erstellt, ändert oder löscht Custom Fields.' ],
                 'read_taxonomies' => [ 'label' => 'Taxonomien auslesen', 'desc' => 'gw/read-taxonomies - Prüft welche Kategorien, Tags etc. es gibt.' ],
                 'read_terms'      => [ 'label' => 'Begriffe lesen', 'desc' => 'gw/read-terms - Listet Kategorien-Namen und IDs auf (wichtig für Posts generieren).' ],
+            ]
+        ],
+        'seo' => [
+            'icon'  => 'dashicons-search',
+            'title' => 'SEO (Rank Math / Yoast)',
+            'fields'=> [
+                'read_seo'   => [ 'label' => 'SEO Metadaten lesen', 'desc' => 'gw/read-seo - Liest Focus Keyword, Title und Meta Description.' ],
+                'update_seo' => [ 'label' => 'SEO Metadaten anpassen', 'desc' => 'gw/update-seo - Direkter Zugriff auf Focus Keyword und SERP Snippet Optimierung, falls ein SEO Plugin aktiv ist.' ],
             ]
         ],
         'media' => [
@@ -240,6 +249,35 @@ function gw_mcp_render_settings_page() {
                 'delete_media'         => [ 'label' => 'Medien löschen', 'desc' => 'gw/delete-media - Entfernt Medien-Elemente permanent aus der Bibliothek.' ],
                 'set_featured_image'   => [ 'label' => 'Beitragsbild setzen', 'desc' => 'gw/set-featured-image - Setzt oder entfernt das Beitragsbild (Featured Image).' ],
                 'bulk_update_media_meta' => [ 'label' => 'Bulk Medien-Metadaten', 'desc' => 'gw/bulk-update-media-meta - Aktualisiert ALT-Texte und Metadaten für mehrere Medien gleichzeitig.' ],
+            ]
+        ],
+        'options' => [
+            'icon'  => 'dashicons-admin-generic',
+            'title' => 'WordPress Optionen',
+            'fields'=> [
+                'read_options'  => [ 'label' => 'Optionen lesen', 'desc' => 'gw/read-option - Liest globale Einstellungen aus wp_options.' ],
+                'write_options' => [ 'label' => 'Optionen schreiben', 'desc' => 'gw/update-option - Verändert globale Einstellungen.' ],
+            ]
+        ],
+        'site_info' => [
+            'icon'  => 'dashicons-admin-site',
+            'title' => 'Site Struktur (Plugins/Themes/Menüs)',
+            'fields'=> [
+                'read_site_info' => [ 'label' => 'Site Info auslesen', 'desc' => 'gw/list-plugins, gw/list-themes, gw/get-menus - Analysiert die WordPress-Architektur.' ],
+            ]
+        ],
+        'search' => [
+            'icon'  => 'dashicons-search',
+            'title' => 'Globale Suche',
+            'fields'=> [
+                'search_content' => [ 'label' => 'Inhalte suchen', 'desc' => 'gw/search-content - Durchsucht alle Inhalte nach Keywords.' ],
+            ]
+        ],
+        'gutenberg' => [
+            'icon'  => 'dashicons-layout',
+            'title' => 'Gutenberg & FSE',
+            'fields'=> [
+                'read_gutenberg' => [ 'label' => 'Patterns & Templates lesen', 'desc' => 'gw/list-block-patterns, gw/read-templates - Gibt Layouts und Pattern zurück, die die KI verbauen kann.' ],
             ]
         ],
     ];
@@ -312,6 +350,12 @@ function gw_mcp_is_ability_active( $ability_id ) {
             'read_terms',
             'list_media',
             'read_media_details',
+            'update_seo',
+            'read_seo',
+            'read_options',
+            'read_site_info',
+            'search_content',
+            'read_gutenberg',
         );
         return in_array( $ability_id, $read_only_defaults, true );
     }

@@ -39,6 +39,11 @@ $ability_files = [
     'meta.php',
     'taxonomies.php',
     'media.php',
+    'seo.php',
+    'options.php',
+    'site-info.php',
+    'search.php',
+    'gutenberg.php',
 ];
 
 foreach ( $ability_files as $file ) {
